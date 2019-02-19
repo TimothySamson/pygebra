@@ -1,42 +1,16 @@
-from enum import Enum
+from derivative.derivative import *
+from numbers import Number
+from operations import operationMixin
 
-class Object:
-    @staticmethod
-    def add(node1, node2):
-        if node1 == 0:
-            return node2
-        if node2 == 0:
-            return node1
+# MAIN THINGS I WANT TO DO
+# 0.) Evaluate
+# 1.) Derivative
+# 2.) Expand
+# 3.) Solve for x
+# 4.) Test for equality (gotta be dirty here mehn)
 
-        return ExprTree(node1, "+", node2)
-
-    @staticmethod
-    def mul(node1, node2):
-        if node1 == 0 or node2 == 0:
-            return 0
-
-        if node1 == 1:
-            return node2
-        if node2 == 1:
-            return node1
-
-        return ExprTree(node1, "*", node2)
-
-    @staticmethod
-    def pow(node1, node2):
-        if node2 == 0:
-            return 1
-        if node1 == 0:
-            return 0
-        if node1 == 1:
-            return 1
-        if node2 == 1:
-            return node1
-
-        return ExprTree(node1, "^", node2)
-
+class Object(operationMixin):
     # ----- Machinery ----
-
     def __add__(self, node2):
         return Object.add(self, node2)
 
@@ -57,8 +31,6 @@ class Object:
     # ----- Right methods -----
     # Here the other argument is on the left.
 
-    # TODO: Make it so that it respects the order
-
     def __radd__(self, node2):
         return Object.add(node2, self)
 
@@ -66,7 +38,7 @@ class Object:
         return Object.mul(node2, self)
 
     def __rpow__(self, node2):
-        return ExprTree(node2, "^", self)
+        return Object.pow(node2, self)
 
     # ----- Right Convenience ----
 
@@ -80,20 +52,34 @@ class Object:
 
     def __neg__(self):
         return -1 * self
+    
+    # ----- TEMPLATE ----
 
 class Leaf(Object):
     def __str__(self):
-        return str(self.name)
+        raise NotImplementedError
+
+    def deriv(self, wrt):
+        raise NotImplementedError
+
+class Const(Leaf):
+    pass
 
 class Var(Leaf):
     def __init__(self, varName):
         self.name = varName
 
-    def eval(self, varName, num):
-        if varName == self.varName:
-            return num
+    def __eq__(self, other):
+        return isinstance(other, Var) and other.name == self.name
+
+    def deriv(self, wrt):
+        if self == wrt:
+            return 1
         else:
-            return self
+            return 0
+
+    def __str__(self):
+        return self.name
 
 class ExprTree(Object):
     def __init__(self, node1, oper, node2):
@@ -105,4 +91,10 @@ class ExprTree(Object):
         return f"({self.node1} {self.oper} {self.node2})"
 
 
-print(5 * Var("x") * Var("y") / Var("z"))
+def isConst(tree):
+    if isTree(tree):
+        return isConst(tree.node1) and isConst(tree.node2)
+    return isinstance(tree, Number) or isinstance(tree, Const)
+
+def isTree(tree):
+    return isinstance(tree, ExprTree)
