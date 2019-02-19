@@ -34,5 +34,9 @@ class operationMixin:
             return base
         if base == 1:
             return 1
+        
+        if expr.isTree(base):
+            if base.oper == "^":
+                return expr.ExprTree(base.node1, "^", (base.node2 * exp))
 
         return expr.ExprTree(base, "^", exp)

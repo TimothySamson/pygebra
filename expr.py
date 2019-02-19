@@ -1,4 +1,3 @@
-from derivative.derivative import *
 from numbers import Number
 from operations import operationMixin
 
@@ -52,6 +51,11 @@ class Object(operationMixin):
 
     def __neg__(self):
         return -1 * self
+
+    def __abs__(self):
+        return absolute(self)
+
+
     
     # ----- TEMPLATE ----
 
@@ -88,6 +92,32 @@ class ExprTree(Object):
         self.node2 = node2
 
     def __str__(self):
+        if self.oper == "*":
+            if self.node1 == -1:
+                return f"-{self.node2}"
+            if self.node2 == -1:
+                return f"-{self.node1}"
+            
+            try: 
+                if self.node2.node2 < 0 and self.node2.oper == "^":
+                    return f"({self.node1} / ({self.node2.node1 ** abs(self.node2.node2)}))"
+            except (AttributeError, TypeError):
+                pass
+
+            try: 
+                if self.node1.node2 < 0 and self.node1.oper == "^":
+                    return f"({self.node2} / ({self.node1.node1 ** abs(self.node1.node2)}))"
+            except (AttributeError, TypeError):
+                pass
+        
+        if self.oper == "^":
+            if isConst(self.node2):
+                if self.node2 < 0:
+                    return f"(1 / {self.node1 ** abs(self.node2)})"
+
+
+
+
         return f"({self.node1} {self.oper} {self.node2})"
 
 
@@ -98,3 +128,7 @@ def isConst(tree):
 
 def isTree(tree):
     return isinstance(tree, ExprTree)
+
+
+from derivative.derivative import deriv
+from functions.functions import *

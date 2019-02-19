@@ -8,18 +8,37 @@ def deriv(self, wrt):
         left = self.node1
         right = self.node2
         if self.oper == "+":
-            return deriv(left, wrt) + deriv(right, wrt)
+            return add(self, wrt)
 
         if self.oper == "*":
-            return deriv(left, wrt)*right + deriv(right, wrt)*left
+            return mul(self, wrt)
         
         if self.oper == "^":
-            if expr.isConst(right):
-                return right * left ** (right - 1) * deriv(left, wrt)
+            return pow(self, wrt)
+    
+    try:
+        # When it's a function
+        return self.deriv(wrt) * deriv(self.arg, wrt)
+    except AttributeError:
+        # When it's a variable
+        return self.deriv(wrt)
 
-    return self.deriv(wrt)
-        
+def add(self, wrt):
+    return deriv(left, wrt) + deriv(right, wrt)
 
+def mul(self, wrt):
+    left = self.node1
+    right = self.node2
+    return deriv(left, wrt)*right + deriv(right, wrt)*left
 
+def pow(self, wrt):
+    left = self.node1
+    right = self.node2
+
+    if expr.isConst(right):
+        return right * left ** (right - 1) * deriv(left, wrt)
+
+    if expr.isConst(left):
+        return 
 
 
