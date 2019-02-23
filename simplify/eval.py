@@ -1,21 +1,26 @@
 import expr
 
-def evaluate(tree, var, obj):
-    if expr.isTree(tree):
-        return expr.refresh(tree, lambda x: evaluate(x, var, obj))
+# Var could either be a list or a single object
+def evaluate(obj, var, repl):
+    if expr.isTree(obj):
+        return expr.refresh(obj, lambda x: evaluate(x, var, repl))
+    
+    try:
+        if obj in var:
+            return repl[var.index(obj)]
+        else:
+            return obj
+    except TypeError: 
+        if obj == var:
+            return repl
+        else:
+            return obj
 
-    if tree == var:
-        return obj
-    else:
-        return tree
-
-def numeric(tree):
-    if not expr.isTree(tree):
+def numeric(obj):
+    if not expr.isTree(obj):
         try:
-            return tree.numeric()
+            return obj.numeric()
         except (AttributeError, NotImplementedError):
-            return tree
+            return obj
 
-    return expr.refresh(tree, numeric)
-
-        
+    return expr.refresh(obj, numeric)

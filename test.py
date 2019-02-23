@@ -18,7 +18,7 @@ t = Var("t")
 expr = 2*cos(t) - 3*sin(t)
 print(deriv(deriv(expr, t), t) + expr)
 
-expr1 = 1/x + 2*y**2*x
+expr1 =1/x + y * x
 expr2 = 2*y*x**2 - cos(y)
 
 print(deriv(expr1, y))
@@ -32,7 +32,9 @@ print(deriv(expr2, x))
 
 print(deriv(x**2 / x, x))
 
-print(refresh(x * y + z, lambda x: x+2))
+print((evaluate(e**(x*y*z), y,  2)))
 
-print(evaluate(2*x**2 + 2*x +  y + 5, x, 2))
+print(deriv((e**y)**x, x))
 
+print(expand((x+1) * (x+1) * (x+1)))
+print(expand((x+1)**ln(2*e)))

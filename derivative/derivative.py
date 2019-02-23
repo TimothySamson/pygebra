@@ -3,7 +3,7 @@ from constants import *
 from functions.functions import *
 
 def deriv(self, wrt): 
-    if expr.isConst(self):
+    if expr.isConstWrt(self, wrt):
         return 0
     
     if expr.isTree(self):
@@ -37,10 +37,10 @@ def pow(self, wrt):
     left = self.node1
     right = self.node2
 
-    if expr.isConst(right):
+    if expr.isConstWrt(right, wrt):
         return right * left ** (right - 1) * deriv(left, wrt)
-
-    if expr.isConst(left):
+    
+    if expr.isConstWrt(left, wrt):
         return ln(left) * left ** right * deriv(right, wrt)
 
 

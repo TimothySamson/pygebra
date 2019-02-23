@@ -2,25 +2,32 @@ import expr
 
 # factor * (addtree.node1 + addtree.node2)
 def leftFoil(factor, addTree):
-    return factor * addtree.node1 + factor * addTree.node2
+    return factor * addTree.node1 + factor * addTree.node2
 
 
-def simplify(exprTree):
+def expand(exprTree):
     if not expr.isTree(exprTree):
         return exprTree
 
-    left = exprTree.node1
-    right = exprTree.node2
+    left = expand(exprTree.node1)
+    right = expand(exprTree.node2)
 
     if exprTree.oper == "+":
-        return simplify(left) + simplify(right)
+        return expand(left) + expand(right)
 
     if exprTree.oper == "*":
-        if left.oper == "+":
-            return simplify(leftFoil(right, left))
-        if right.oper == "+":
-            return simplify(leftFoil(left, right))
+        if expr.isTree(left):
+            if left.oper == "+":
+                return expand(leftFoil(right, left))
+
+        if expr.isTree(right):
+            if right.oper == "+":
+                return expand(leftFoil(left, right))
 
     if exprTree.oper == "^":
-        if isConst(right):
-            pass
+        if expr.isInt(right):
+            right = int(expr.numeric(right))
+            return expand(left * left ** (right - 1))
+
+    return exprTree
+

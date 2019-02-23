@@ -114,17 +114,42 @@ class ExprTree(Object):
 
         return f"({self.node1} {self.oper} {self.node2})"
 
+    def __contains__(self, var):
+        if isTree(self.node1) and isTree(self.node2):
+            return var in self.node1 or var in self.node2
+
+        if isTree(self.node1):
+            return var in self.node1 or self.node2 == var
+
+        if isTree(self.node2):
+            return var in self.node2 or self.node1 == var
+
+        return self.node1 == var or self.node2 == var
+
+
 
 def isConst(tree):
     if isTree(tree):
         return isConst(tree.node1) and isConst(tree.node2)
+    if isinstance(tree, Function):
+        return isConst(tree.arg)
     return isinstance(tree, Number) or isinstance(tree, Const)
+
+def isConstWrt(obj, var):
+    if isTree(obj):
+        return not var in obj
+    return var != obj
+
 
 def isTree(tree):
     return isinstance(tree, ExprTree)
 
 def isInt(const):
-    pass
+    if not isConst(const):
+        return False
+    
+    return Fraction(numeric(const)).denominator == 1
+
 
 def refresh(tree, func=(lambda a: a)):
     if tree.oper == "+":
@@ -135,7 +160,7 @@ def refresh(tree, func=(lambda a: a)):
         return func(tree.node1) ** func(tree.node2)
 
 from eq.eq import eq 
-from simplify.simplify import simplify
+from simplify.simplify import expand
 from simplify.eval import *
 from constants import *
 from derivative.derivative import deriv
