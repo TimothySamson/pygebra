@@ -1,9 +1,9 @@
 from numbers import Number
+from fractions import Fraction
 from operations import operationMixin
 
 # MAIN THINGS I WANT TO DO
 # 0.) Evaluate
-# 1.) Derivative
 # 2.) Expand
 # 3.) Solve for x
 # 4.) Test for equality (gotta be dirty here mehn)
@@ -66,9 +66,6 @@ class Leaf(Object):
     def deriv(self, wrt):
         raise NotImplementedError
 
-class Const(Leaf):
-    pass
-
 class Var(Leaf):
     def __init__(self, varName):
         self.name = varName
@@ -106,17 +103,14 @@ class ExprTree(Object):
 
             try: 
                 if self.node1.node2 < 0 and self.node1.oper == "^":
-                    return f"({self.node2} / ({self.node1.node1 ** abs(self.node1.node2)}))"
+                    return f"({self.node2} / ({self.node1.node1 ** -(self.node1.node2)}))"
             except (AttributeError, TypeError):
                 pass
         
         if self.oper == "^":
             if isConst(self.node2):
                 if self.node2 < 0:
-                    return f"(1 / {self.node1 ** abs(self.node2)})"
-
-
-
+                    return f"(1 / {self.node1 ** -(self.node2)})"
 
         return f"({self.node1} {self.oper} {self.node2})"
 
@@ -129,6 +123,20 @@ def isConst(tree):
 def isTree(tree):
     return isinstance(tree, ExprTree)
 
+def isInt(const):
+    pass
 
+def refresh(tree, func=(lambda a: a)):
+    if tree.oper == "+":
+        return func(tree.node1) + func(tree.node2)
+    if tree.oper == "*":
+        return func(tree.node1) * func(tree.node2)
+    if tree.oper == "^":
+        return func(tree.node1) ** func(tree.node2)
+
+from eq.eq import eq 
+from simplify.simplify import simplify
+from simplify.eval import *
+from constants import *
 from derivative.derivative import deriv
 from functions.functions import *

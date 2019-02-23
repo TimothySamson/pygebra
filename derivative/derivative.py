@@ -1,12 +1,12 @@
 import expr
+from constants import *
+from functions.functions import *
 
 def deriv(self, wrt): 
     if expr.isConst(self):
         return 0
     
     if expr.isTree(self):
-        left = self.node1
-        right = self.node2
         if self.oper == "+":
             return add(self, wrt)
 
@@ -24,6 +24,8 @@ def deriv(self, wrt):
         return self.deriv(wrt)
 
 def add(self, wrt):
+    left = self.node1
+    right = self.node2
     return deriv(left, wrt) + deriv(right, wrt)
 
 def mul(self, wrt):
@@ -39,6 +41,6 @@ def pow(self, wrt):
         return right * left ** (right - 1) * deriv(left, wrt)
 
     if expr.isConst(left):
-        return 
+        return ln(left) * left ** right * deriv(right, wrt)
 
 
